@@ -5,6 +5,7 @@ const youtube = new Youtube(config.youtube);
 const keepAlive = require("./server.js");
 const version = config.version;
 const prefix = config.prefix;
+const fs = require("fs");
 const code = require("unescape");
 const ytdl = require("ytdl-core");
 const users = [];
@@ -26,6 +27,12 @@ function search(value="", index=0){
     }).catch((e) => console.log(e));
 });
 }
+function loop(connection, url){
+  connection.play(ytdl(url, { filter: "audioonly", quality: 'highestaudio' }))
+  .on("finish", () => {
+    loop(connection,url);
+  });
+}
 bot.on('ready', () => {
     console.log("Sonnet is running");
 });
@@ -41,10 +48,11 @@ bot.on('message', async message => {
   const msg = message.content;
   if(msg == "sonnet" || msg == prefix|| msg == "Sonnet" || msg == "SONNET" || msg == "소넷"){
       const Embed = new MessageEmbed()
-      .setColor("#57FFDE")
+      .setColor("#F44444")
       .setTitle(`안녕하세요! ${message.author.username.length >= 7?message.author.username.slice(0,7)+"...":message.author.username}님, Sonnet입니다`)
       .setDescription(`명령어: ${prefix}명령어`)
-      .setAuthor("Sonnet", bot.user.displayAvatarURL(),"https://sepbot.tk");
+      .setFooter("Made By SepJ")
+      .setAuthor("Sonnet", bot.user.displayAvatarURL(),"https://sepsite.kro.kr");
       message.channel.send(Embed);
   }
 	  if (message.content.startsWith(prefix)) {
@@ -78,10 +86,26 @@ bot.on('message', async message => {
         //if title is number
         if(users.find(e => e.channel === message.member.voice.channelID)){
           var user = users.find(e => e.channel === message.member.voice.channelID);
-          let url = user.list[Number(title) - 1].url;
-          user.dispatcher = user.connection.play(ytdl(url, { filter: "audioonly", quality: 'highestaudio' }));
-          message.channel.send(`**${user.list[Number(title)-1].title}**을 재생합니다!\n\n도움말: ${prefix}음악`)
-            .then(react_msg => react_msg.react("🎧"));
+          fs.writeFileSync("./text.txt", JSON.stringify(user.list[Number(title)-1],null,2));
+          let musicResult = user.list[Number(title)-1];
+          let url = musicResult.url;
+          user.dispatcher = user.connection.play(ytdl(url, { filter: "audioonly", quality: 'highestaudio' }))
+          .on("finish", () => {
+            loop(user.connection, url);
+          });
+          let musicEmbed = new MessageEmbed()
+          .setColor("F44444")
+          .setTitle(musicResult.title)
+          .setThumbnail(musicResult.thumbnails.high.url)
+          .setURL(musicResult.url)
+          .setDescription(musicResult.description.length>30?musicResult.description.substring(0,30):musicResult.description)
+          .setFooter(musicResult.publishedAt);
+          message.channel.send(musicEmbed)
+            .then(async react_msg => {
+              await react_msg.react("🎵");
+              await react_msg.react("🎧");
+              await react_msg.react("🔊");
+            });
         }else{
           message.channel.send("**먼저 소네트참가로 Sonnet가 음성채널을 들어가게 해주세요**");
         }
