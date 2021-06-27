@@ -19,7 +19,7 @@ const bot = new Client({
   }
 });
 //setup functions
-function search(value="", index=0){
+function search(value="", index=3){
     return new Promise(resolve => {
         youtube.searchVideos(value, index)
     .then(youtube_results => {
@@ -38,7 +38,7 @@ bot.on('ready', () => {
 });
 bot.on("guildCreate", (guild) => {
     const welcomeEmbed = new MessageEmbed()
-    .setColor("#57FFDE")
+    .setColor("F44444")
     .setTitle("안녕하세요 소네트입니다")
     .setDescription(`도움말: ${prefix}명령어`);
     guild.systemChannel.send(welcomeEmbed);
@@ -65,18 +65,21 @@ bot.on('message', async message => {
       if(isNaN(title)){
         //if title is string or etc
         if(users.find(e => e.channel === message.member.voice.channelID)){
-        search(title,5)
+        search(title,3)
         .then(results => {
-        let sendResult = [];
         var new_user = {
           query: title,
           list: results
         }
+        let searchEmbed = new MessageEmbed()
+        .setTitle(title.length>10?title.substring(0,10)+"...":title+"에 대한 검색결과입니다")
+        .setColor("F44444")
+        .setFooter("Made By SepJ");
         Object.assign(users.find(e => e.channel === message.member.voice.channelID), new_user);
-        for(var i = 0;i < 5;i++){
-          sendResult.push("**["+(i+1)+"]**  : " + code(results[i].title) + "\n"+results[i].channel.title)
+        for(var i = 0;i < 3;i++){
+          searchEmbed.addField("**["+(i+1)+"]**  : " + code(results[i].title), results[i].description.length>30?results[i].description.substring(0,30)+"...":results[i].description, i%2==0?true:false);
         }
-        message.channel.send(sendResult)
+        message.channel.send(searchEmbed);
       }).catch((e) => console.log(e));
       }//if exists users
       else{
@@ -86,20 +89,21 @@ bot.on('message', async message => {
         //if title is number
         if(users.find(e => e.channel === message.member.voice.channelID)){
           var user = users.find(e => e.channel === message.member.voice.channelID);
-          fs.writeFileSync("./text.txt", JSON.stringify(user.list[Number(title)-1],null,2));
           let musicResult = user.list[Number(title)-1];
           let url = musicResult.url;
+          user.url = url;
           user.dispatcher = user.connection.play(ytdl(url, { filter: "audioonly", quality: 'highestaudio' }))
           .on("finish", () => {
             loop(user.connection, url);
           });
+          user.dispatcher.setVolume(0.5);
           let musicEmbed = new MessageEmbed()
           .setColor("F44444")
           .setTitle(musicResult.title)
           .setThumbnail(musicResult.thumbnails.high.url)
           .setURL(musicResult.url)
-          .setDescription(musicResult.description.length>30?musicResult.description.substring(0,30):musicResult.description)
-          .setFooter(musicResult.publishedAt);
+          .setDescription(musicResult.description.length>30?musicResult.description.substring(0,30)+"...":musicResult.description)
+          .setTimestamp(musicResult.publishedAt);
           message.channel.send(musicEmbed)
             .then(async react_msg => {
               await react_msg.react("🎵");
@@ -134,7 +138,7 @@ bot.on('message', async message => {
             },{
                 name: `>>> **${prefix}시작**`, value:"=> 음악 일시정지 해제", inline:true
             })
-            .setColor("#57FFDE")
+            .setColor("F44444")
             .setTitle("Sonnet의 음악 명령어")
             .setFooter("버전 : "+version)
             .setAuthor(`SepJ#0359`, "https://imgur.com/a/HkDzbOC.jpg");
@@ -232,7 +236,7 @@ bot.on('message', async message => {
             .then(react_msg => react_msg.react("🖐"));
           }
         }
-          break;
+      break;
     } //switch
   }
 }catch(e){
