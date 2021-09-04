@@ -1,5 +1,6 @@
 const { Client, MessageEmbed, MessageFlags } = require('discord.js');
 const config = require('./config');
+const { KoreanbotsClient } = require("koreanbots");
 const Youtube = require("simple-youtube-api");
 const youtube = new Youtube(config.youtube);
 const keepAlive = require("./server.js");
@@ -16,6 +17,12 @@ const bot = new Client({
       name: `${prefix}명령어`,
       type: 'LISTENING'
     }
+  }
+});
+const client = new KoreanbotsClient({
+  koreanbotsToken: config.token,
+  koreanbotsOptions: {
+    interval: 600000
   }
 });
 //setup functions

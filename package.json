@@ -30,6 +30,7 @@
     "ffmpeg": "^0.0.4",
     "ffmpeg-static": "^4.4.0",
     "fluent-ffmpeg": "^2.1.2",
+    "koreanbots": "^2.0.12",
     "node-core": "^1.0.6",
     "node-opus": "^0.3.3",
     "simple-youtube-api": "^5.2.1",
