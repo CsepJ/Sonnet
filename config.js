@@ -3,5 +3,6 @@ module.exports = {
     "token" : process.env.discord,
     "prefix" : "소네트",
     "version" : "1.2.0",
-    "youtube" : process.env.youtube
+    "youtube" : process.env.youtube,
+		"client" : process.env.client
 }

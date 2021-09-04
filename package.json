@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node index.js",
-    "start": "node index.js"
+    "start": "node ."
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
   "homepage": "https://sepbot.tk",
   "dependencies": {
     "@discordjs/opus": "^0.5.0",
+    "axios": "^0.21.2",
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
@@ -36,5 +37,8 @@
     "simple-youtube-api": "^5.2.1",
     "unescape": "^1.0.1",
     "ytdl-core": "^4.8.3"
+  },
+  "devDependencies": {
+    "node": "^16.6.1"
   }
 }

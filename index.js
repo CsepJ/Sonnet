@@ -1,12 +1,12 @@
 const { Client, MessageEmbed, MessageFlags } = require('discord.js');
 const config = require('./config');
-const { KoreanbotsClient } = require("koreanbots");
 const Youtube = require("simple-youtube-api");
 const youtube = new Youtube(config.youtube);
 const keepAlive = require("./server.js");
 const version = config.version;
 const prefix = config.prefix;
 const fs = require("fs");
+const axios = require("axios").default;
 const code = require("unescape");
 const ytdl = require("ytdl-core");
 const users = [];
@@ -19,12 +19,17 @@ const bot = new Client({
     }
   }
 });
-const client = new KoreanbotsClient({
-  koreanbotsToken: config.token,
-  koreanbotsOptions: {
-    interval: 600000
-  }
-});
+setInterval(() => {
+      axios.post(`https://api.koreanbots.dev/v2/bots/${bot.user.id}/stats`, {
+          servers: bot.guilds.cache.size
+      }, {
+          headers: {
+              'Content-Type': "application/json",
+              "Authorization": config.client
+          }
+      });
+			console.log("Request to koreanbots");
+}, 21600000);
 //setup functions
 function search(value="", index=3){
     return new Promise(resolve => {
